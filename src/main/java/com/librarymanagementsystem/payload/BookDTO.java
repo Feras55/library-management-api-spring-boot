@@ -1,6 +1,6 @@
 package com.librarymanagementsystem.payload;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -12,13 +12,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BookDTO {
     private Long id;
-    @NotEmpty
+    @NotBlank(message = "Title is required")
     private String title;
-    @NotEmpty
+
+    @NotBlank(message = "Author is required")
     private String author;
-    @Positive
-    @NotNull
+
+    @NotNull(message = "Publication year is required")
+    @Positive(message = "Publication year must be a positive number")
     private Integer publicationYear;
-    @NotEmpty
+
+    @NotBlank(message = "ISBN is required")
     private String isbn;
 }
