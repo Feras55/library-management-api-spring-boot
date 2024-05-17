@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.controller;
 
+import com.librarymanagementsystem.payload.MessageResponseDTO;
 import com.librarymanagementsystem.payload.PatronDTO;
 import com.librarymanagementsystem.service.PatronService;
 import jakarta.validation.Valid;
@@ -44,9 +45,9 @@ public class PatronController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePatron(@PathVariable Long id) {
-        boolean deleted = patronService.deletePatron(id);
-        return ResponseEntity.ok(DELETE_PATRON_RESPONSE);
+    public ResponseEntity<MessageResponseDTO> deletePatron(@PathVariable Long id) {
+        patronService.deletePatron(id);
+        return ResponseEntity.ok(new MessageResponseDTO(DELETE_PATRON_RESPONSE));
 
     }
 }

@@ -9,5 +9,5 @@ public interface PatronService {
     PatronDTO getPatronById(Long id);
     PatronDTO addPatron(PatronDTO patronDTO);
     PatronDTO updatePatron(Long id, PatronDTO patronDTO);
-    boolean deletePatron(Long id);
+    void deletePatron(Long id);
 }

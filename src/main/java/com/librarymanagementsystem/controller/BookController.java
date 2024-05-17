@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.controller;
 
+import com.librarymanagementsystem.payload.MessageResponseDTO;
 import com.librarymanagementsystem.service.BookService;
 import com.librarymanagementsystem.payload.BookDTO;
 import jakarta.validation.Valid;
@@ -44,9 +45,9 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        boolean deleted = bookService.deleteBook(id);
-        return ResponseEntity.ok(DELETE_BOOK_RESPONSE);
+    public ResponseEntity<MessageResponseDTO> deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+        return ResponseEntity.ok(new MessageResponseDTO(DELETE_BOOK_RESPONSE));
 
     }
 

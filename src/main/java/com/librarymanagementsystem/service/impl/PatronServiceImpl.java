@@ -9,6 +9,9 @@ import com.librarymanagementsystem.repository.PatronRepository;
 import com.librarymanagementsystem.service.PatronService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +23,9 @@ import static com.librarymanagementsystem.util.ApplicationConstants.*;
 @Service
 public class PatronServiceImpl implements PatronService {
 
-    @Autowired
-    private PatronRepository patronRepository;
+    private final PatronRepository patronRepository;
 
+    @Cacheable("patrons")
     @Override
     public List<PatronDTO> getAllPatrons() {
         return patronRepository.findAll().stream()
@@ -30,6 +33,7 @@ public class PatronServiceImpl implements PatronService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "patrons", key = "#id")
     @Override
     public PatronDTO getPatronById(Long id) {
         Patron patron = patronRepository.findById(id).orElseThrow(
@@ -39,16 +43,18 @@ public class PatronServiceImpl implements PatronService {
         return PatronMapper.MAPPER.mapToPatronDTO(patron);
     }
 
+    @CachePut(value = "patrons", key = "#patronDTO.email")
     @Override
     public PatronDTO addPatron(PatronDTO patronDTO) {
         patronRepository.findByEmail(patronDTO.getEmail()).ifPresent(patron -> {
-            throw new AlreadyExistsException(EMAIL, patron.getEmail());
+            throw new AlreadyExistsException(PATRON, EMAIL, patron.getEmail());
         });
         Patron patron = PatronMapper.MAPPER.mapToPatron(patronDTO);
         Patron savedPatron = patronRepository.save(patron);
         return PatronMapper.MAPPER.mapToPatronDTO(savedPatron);
     }
 
+    @CachePut(value = "patrons", key = "#id")
     @Override
     public PatronDTO updatePatron(Long id, PatronDTO patronDTO) {
         Patron existingPatron = patronRepository.findById(id).orElseThrow(
@@ -63,11 +69,11 @@ public class PatronServiceImpl implements PatronService {
         return PatronMapper.MAPPER.mapToPatronDTO(updatedPatron);
     }
 
+    @CacheEvict(value = "patrons", key = "#id")
     @Override
-    public boolean deletePatron(Long id) {
+    public void deletePatron(Long id) {
         if (patronRepository.existsById(id)) {
             patronRepository.deleteById(id);
-            return true;
         } else {
             throw new ResourceNotFoundException(PATRON, ID, id);
         }

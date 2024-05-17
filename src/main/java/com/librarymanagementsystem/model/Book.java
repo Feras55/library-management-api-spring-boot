@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,4 +29,7 @@ public class Book {
 
     @Column(nullable = false, unique = true)
     private String isbn;
+
+    @OneToMany(mappedBy = "book")
+    private Set<BorrowingRecord> borrowingRecords;
 }

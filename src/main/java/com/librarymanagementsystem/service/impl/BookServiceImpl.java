@@ -8,6 +8,9 @@ import com.librarymanagementsystem.payload.BookDTO;
 import com.librarymanagementsystem.repository.BookRepository;
 import com.librarymanagementsystem.service.BookService;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +22,9 @@ import static com.librarymanagementsystem.util.ApplicationConstants.*;
 @Service
 public class BookServiceImpl implements BookService {
 
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
+    @Cacheable("books")
     @Override
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll().stream()
@@ -28,6 +32,7 @@ public class BookServiceImpl implements BookService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "books", key = "#id")
     @Override
     public BookDTO getBookById(Long id) {
         Book book = bookRepository.findById(id).orElseThrow(
@@ -36,16 +41,17 @@ public class BookServiceImpl implements BookService {
         return BookMapper.MAPPER.mapToBookDTO(book);
     }
 
+    @CachePut(value = "books", key = "#bookDTO.isbn")
     @Override
     public BookDTO addBook(BookDTO bookDTO) {
         bookRepository.findByIsbn(bookDTO.getIsbn()).ifPresent(book -> {
-            throw new AlreadyExistsException(ISBN, book.getIsbn());
+            throw new AlreadyExistsException(BOOK,ISBN, book.getIsbn());
         });
         Book book = BookMapper.MAPPER.mapToBook(bookDTO);
         Book savedBook = bookRepository.save(book);
         return BookMapper.MAPPER.mapToBookDTO(savedBook);
     }
-
+    @CachePut(value = "books", key = "#id")
     @Override
     public BookDTO updateBook(Long id, BookDTO bookDTO) {
         Book existingBook = bookRepository.findById(id).orElseThrow(
@@ -60,11 +66,12 @@ public class BookServiceImpl implements BookService {
         return BookMapper.MAPPER.mapToBookDTO(updatedBook);
     }
 
+    @CacheEvict(value = "books", key = "#id")
+
     @Override
-    public boolean deleteBook(Long id) {
+    public void deleteBook(Long id) {
         if (bookRepository.existsById(id)) {
             bookRepository.deleteById(id);
-            return true;
         } else {
             throw new ResourceNotFoundException(BOOK, ID, id);
         }
