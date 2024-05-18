@@ -38,6 +38,16 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(InvalidDateException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidDateException(InvalidDateException exception,
+                                                                     WebRequest webRequest) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                webRequest.getDescription(false)
+        );
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobalException(AlreadyExistsException exception,
                                                                         WebRequest webRequest) {

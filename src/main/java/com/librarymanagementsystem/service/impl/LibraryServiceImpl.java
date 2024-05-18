@@ -1,6 +1,7 @@
 package com.librarymanagementsystem.service.impl;
 
 import com.librarymanagementsystem.exception.AlreadyExistsException;
+import com.librarymanagementsystem.exception.InvalidDateException;
 import com.librarymanagementsystem.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.model.Book;
 import com.librarymanagementsystem.model.BorrowingRecord;
@@ -43,6 +44,10 @@ public class LibraryServiceImpl implements LibraryService {
 
         if (libraryRepository.findByBookIdAndPatronId(bookId, patronId).isPresent()) {
             throw new AlreadyExistsException(BOOK_ALREADY_BORROWED);
+        }
+
+        if(borrowBookRequestDTO.getReturnDate().isAfter(LocalDate.now())){
+            throw new InvalidDateException();
         }
         BorrowingRecord borrowingRecord = new BorrowingRecord();
         borrowingRecord.setBook(book);
